@@ -7,6 +7,13 @@ local crypto = require "crypto"
 
 local ALGORITHM = "AWS4-HMAC-SHA256"
 
+local CHAR_TO_HEX = {};
+for i = 0, 255 do
+  local char = string.char(i)
+  local hex = string.format("%02x", i)
+  CHAR_TO_HEX[char] = hex
+end
+
 local function hmac(key, msg)
   return crypto.hmac.digest("sha256", msg, key, true)
 end
@@ -18,13 +25,7 @@ local function hash(str)
 end
 
 local function hex_encode(str) -- From prosody's util.hex
-  local char_to_hex = {};
-  for i = 0, 255 do
-    local char = string.char(i)
-    local hex = string.format("%02x", i)
-    char_to_hex[char] = hex
-  end
-  return (str:gsub(".", char_to_hex))
+  return (str:gsub(".", CHAR_TO_HEX))
 end
 
 local function percent_encode(char)
