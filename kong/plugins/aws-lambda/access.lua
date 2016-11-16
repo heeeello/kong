@@ -47,7 +47,7 @@ function _M.execute(conf)
       ["X-Amz-Invocation-Type"] = conf.invocation_type,
       ["X-Amx-Log-Type"] = conf.log_type,
       ["Content-Type"] = "application/x-amz-json-1.1",
-      ["Content-Length"] = tostring(string.len(bodyJson))
+      ["Content-Length"] = tostring(#bodyJson)
     },
     body = bodyJson, 
     path = path,

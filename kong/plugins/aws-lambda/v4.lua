@@ -17,29 +17,24 @@ local function hash(str)
   return sha256:final()
 end
 
-local hex_encode do -- From prosody's util.hex
+local function hex_encode(str) -- From prosody's util.hex
   local char_to_hex = {};
   for i = 0, 255 do
     local char = string.char(i)
     local hex = string.format("%02x", i)
     char_to_hex[char] = hex
   end
-  function hex_encode(str)
-    return (str:gsub(".", char_to_hex))
-  end
+  return (str:gsub(".", char_to_hex))
 end
 
 local function percent_encode(char)
   return string.format("%%%02X", string.byte(char))
 end
 
-local urldecode do
-  local function urldecode_helper(c)
+local function urldecode(str)
+  return (str:gsub("%%(%x%x)", function(c) 
     return string.char(tonumber(c, 16))
-  end
-  function urldecode(str)
-    return (str:gsub("%%(%x%x)", urldecode_helper))
-  end
+  end))
 end
 
 local function canonicalise_path(path)
@@ -92,14 +87,14 @@ local function prepare_awsv4_request(tbl)
   local request_method = tbl.method
   local canonicalURI = tbl.canonicalURI
   local path = tbl.path
-  if canonicalURI == nil and path ~= nil then
+  if path and not canonicalURI then
     canonicalURI = canonicalise_path(path)
   elseif canonicalURI == nil or canonicalURI == "" then
     canonicalURI = "/"
   end
   local canonical_querystring = tbl.canonical_querystring
   local query = tbl.query
-  if canonical_querystring == nil and query ~= nil then
+  if query and not canonical_querystring then
     canonical_querystring = canonicalise_query_string(query)
   end
   local req_headers = tbl.headers or {}
@@ -107,7 +102,7 @@ local function prepare_awsv4_request(tbl)
   local access_key = tbl.access_key
   local signing_key = tbl.signing_key
   local secret_key
-  if signing_key == nil then
+  if not signing_key then
     secret_key = tbl.secret_key
     if secret_key == nil then
       return nil, "either 'signing_key' or 'secret_key' must be provided"
@@ -218,14 +213,14 @@ local function prepare_awsv4_request(tbl)
   local url = scheme .. "://" .. host_header .. target
 
   return {
-    url = url;
-    host = host;
-    port = port;
-    tls = tls;
-    method = request_method;
-    target = target;
-    headers = headers;
-    body = req_payload;
+    url = url,
+    host = host,
+    port = port,
+    tls = tls,
+    method = request_method,
+    target = target,
+    headers = headers,
+    body = req_payload,
   }
 end
 

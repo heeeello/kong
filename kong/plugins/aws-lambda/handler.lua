@@ -6,7 +6,7 @@ local access = require "kong.plugins.aws-lambda.access"
 local AWSLambdaHandler = BasePlugin:extend()
 
 function AWSLambdaHandler:new()
-  AWSLambdaHandler.super.new(self, "basic-auth")
+  AWSLambdaHandler.super.new(self, "aws-lambda")
 end
 
 function AWSLambdaHandler:access(conf)
